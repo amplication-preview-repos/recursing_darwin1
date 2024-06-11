@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workshop {
+  address      String?
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  id           String        @id @default(cuid())
+  name         String?
+  phone        String?
+  updatedAt    DateTime      @updatedAt
+}
+
+model Client {
+  appointments Appointment[]
+  billings     Billing[]
+  createdAt    DateTime      @default(now())
+  email        String?
+  id           String        @id @default(cuid())
+  name         String?
+  phone        String?
+  updatedAt    DateTime      @updatedAt
+}
+
+model Appointment {
+  agent       Agent?                 @relation(fields: [agentId], references: [id])
+  agentId     String?
+  client      Client?                @relation(fields: [clientId], references: [id])
+  clientId    String?
+  createdAt   DateTime               @default(now())
+  dateAndTime DateTime?
+  id          String                 @id @default(cuid())
+  status      EnumAppointmentStatus?
+  updatedAt   DateTime               @updatedAt
+  workshop    Workshop?              @relation(fields: [workshopId], references: [id])
+  workshopId  String?
+}
+
+model Invoice {
+  amount    Float?
+  billing   Billing?  @relation(fields: [billingId], references: [id])
+  billingId String?
+  createdAt DateTime  @default(now())
+  date      DateTime?
+  id        String    @id @default(cuid())
+  paid      Boolean?
+  updatedAt DateTime  @updatedAt
+}
+
+model Agent {
+  appointments      Appointment[]
+  assignedWorkshops String?
+  createdAt         DateTime      @default(now())
+  email             String?
+  id                String        @id @default(cuid())
+  name              String?
+  updatedAt         DateTime      @updatedAt
+}
+
+model Billing {
+  amount    Float?
+  client    Client?   @relation(fields: [clientId], references: [id])
+  clientId  String?
+  createdAt DateTime  @default(now())
+  date      DateTime?
+  id        String    @id @default(cuid())
+  invoices  Invoice[]
+  updatedAt DateTime  @updatedAt
+}
+
+enum EnumAppointmentStatus {
+  Option1
+}
